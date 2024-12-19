@@ -5,12 +5,14 @@ import urllib.request
 import argparse
 
 
-def post(url, data):
+def post(url, data, proxy=None):
     """post data (dict) as JSON to specified URL."""
     headers = {
         'Content-Type': 'application/json',
     }
     req = urllib.request.Request(url, json.dumps(data).encode(), headers)
+    if proxy is not None:
+        req.set_proxy(proxy, 'https')
     try:
         with urllib.request.urlopen(req) as res:
             body = res.read()
@@ -19,13 +21,13 @@ def post(url, data):
         print(e, file=sys.stderr)
 
 
-def loop(url):
+def loop(url, proxy=None):
     def on(messages):
         print('messages', len(messages))
         data = {
             'text': '\n'.join(messages),
         }
-        ret = post(url, data)
+        ret = post(url, data, proxy)
         print(ret, file=sys.stderr)
         return
 
@@ -54,8 +56,9 @@ def loop(url):
 def main():
     parser = argparse.ArgumentParser(description='')
     parser.add_argument('URL', type=str, help='Slack Incoming Webhook URL (e.g. https://hooks.slack.com/services/XXXXX/YYYYY/ZZZZZ)')
+    parser.add_argument('--proxy', default=None, type=str, help='HTTPS proxy URL (e.g. proxy.example.com:8080)')
     args = parser.parse_args()
-    loop(args.URL)
+    loop(args.URL, args.proxy)
 
 
 main()
