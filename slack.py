@@ -12,7 +12,9 @@ def post(url, data, proxy=None):
     }
     req = urllib.request.Request(url, json.dumps(data).encode(), headers)
     if proxy is not None:
-        req.set_proxy(proxy, 'https')
+        proxy_handler = urllib.request.ProxyHandler({'https': proxy})
+        opener = urllib.request.build_opener(proxy_handler)
+        urllib.request.install_opener(opener)
     try:
         with urllib.request.urlopen(req) as res:
             body = res.read()
