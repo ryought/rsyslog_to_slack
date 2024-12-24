@@ -3,7 +3,7 @@ import sys
 import json
 import urllib.request
 import argparse
-
+import re
 
 def post(url, data, proxy=None):
     """post data (dict) as JSON to specified URL."""
@@ -23,9 +23,17 @@ def post(url, data, proxy=None):
         print(e, file=sys.stderr)
 
 
-def loop(url, proxy=None):
+def loop(url, proxy=None, ignore_patterns=[]):
+    def ignored(text):
+        for pattern in ignore_patterns:
+            if re.match(pattern, text):
+                return True
+        return False
     def on(messages):
-        print('messages', len(messages))
+        messages = [message for message in messages if not ignored(message)]
+        # print(messages)
+        if len(messages) == 0:
+            return
         data = {
             'text': '\n'.join(messages),
         }
@@ -54,13 +62,20 @@ def loop(url, proxy=None):
                 # single message without transaction mode
                 on([message])
 
+DEFAULT_IGNORE_PATTERNS = [
+    'maximum authentication attempts exceeded',
+    'Timeout occurred while waiting for network connectivity',
+    'Can\'t find sendmail at /usr/sbin/sendmail, not mailing output',
+]
 
 def main():
     parser = argparse.ArgumentParser(description='')
     parser.add_argument('URL', type=str, help='Slack Incoming Webhook URL (e.g. https://hooks.slack.com/services/XXXXX/YYYYY/ZZZZZ)')
     parser.add_argument('--proxy', default=None, type=str, help='HTTPS proxy URL (e.g. proxy.example.com:8080)')
+    parser.add_argument('--ignore', nargs='*', type=str, default=DEFAULT_IGNORE_PATTERNS,
+                        help='Lines that match with regexp pattern(s) will be ignored')
     args = parser.parse_args()
-    loop(args.URL, args.proxy)
+    loop(args.URL, args.proxy, args.ignore)
 
 
 main()
