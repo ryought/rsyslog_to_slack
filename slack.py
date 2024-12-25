@@ -63,9 +63,9 @@ def loop(url, proxy=None, ignore_patterns=[]):
                 on([message])
 
 DEFAULT_IGNORE_PATTERNS = [
-    'maximum authentication attempts exceeded',
-    'Timeout occurred while waiting for network connectivity',
-    'Can\'t find sendmail at /usr/sbin/sendmail, not mailing output',
+    '.*maximum authentication attempts exceeded.*',
+    '.*Timeout occurred while waiting for network connectivity.*',
+    '.*Can\'t find sendmail at /usr/sbin/sendmail, not mailing output.*',
 ]
 
 def main():
