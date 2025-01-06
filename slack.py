@@ -63,8 +63,12 @@ def loop(url, proxy=None, ignore_patterns=[]):
                 on([message])
 
 DEFAULT_IGNORE_PATTERNS = [
+    # sshd
     '.*maximum authentication attempts exceeded.*',
-    '.*Timeout occurred while waiting for network connectivity.*',
+    '.*ssh_packet_get_string: incomplete message.*',
+    # systemd-networkd-wait-online
+    '.*systemd-networkd-wait-online.*Timeout occurred while waiting for network connectivity.*',
+    # anacron/sendmail
     '.*Can\'t find sendmail at /usr/sbin/sendmail, not mailing output.*',
 ]
 
